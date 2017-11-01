@@ -38,7 +38,7 @@ def build_specs(location):
     global pages
     rename_to_spaces(location)
     pdfWriter = PyPDF2.PdfFileWriter()
-    blank='no'
+    blank= input("\n\n\n{}\n{}   Blank sheet needed after first odd number of pages?   {}\n\n{}\nIf there is a cover sheet, type 'no', if there is no cover, type 'yes':  ".format('*~'*40, '*~'*6, '*~'*5, '~*'*40))
     bookmarks=OD()
 
     def write_to_file(sect):
