@@ -1,28 +1,48 @@
-#!python3
-
-import os.path, os, PyPDF2
+from appJar import gui
 from collections import OrderedDict as OD
-
-location = os.getcwd()
-directory = os.listdir(location)
-pdfWriter = PyPDF2.PdfFileWriter()
-pages=0
+import os
+import PyPDF2
 
 
-def rename_to_spaces(location):
+def execute(btnName):
+    global location
+    task = app.getRadioButton('task')
+    options = app.getRadioButton('options')
+    location = app.getEntry('location')
+
+    if btnName == 'Quit':
+        app.stop()
+    elif btnName == 'Start':
+        if location == '':
+            app.errorBox('Empty Location', 'Choose the directory with the files in it.')
+        else:
+            directory = os.listdir(location)
+            if task == 'Build Specs':
+                build_specs(directory)
+            elif task == 'Rename Files':
+                if options == 'Add Spaces':
+                    rename_to_spaces(directory)
+                elif options == 'Remove Spaces':
+                    rename_no_spaces(directory)
+
+
+def rename_to_spaces(directory):
     for file in directory:
         if ' ' not in file[:6] and file[0].isdigit():
-            # print(new_filename)
             a = file[:2]
             b = file[2:4]
-            c = file[4:6]
-            d = file[7:]
-            names = [a, b, c, d]
+            if file[6] == '.':
+                c = file[4:]
+                names = [a, b, c]
+            else:
+                c = file[4:6]
+                d = file[7:]
+                names = [a, b, c, d]
             new_filename = ' '.join(names)
             os.rename(os.path.join(location, file), os.path.join(location, new_filename))
 
 
-def rename_no_spaces(location):
+def rename_no_spaces(directory):
     for file in directory:
         if file[0].isdigit() and file[2] == ' ':
             a = file[:2]
@@ -34,34 +54,33 @@ def rename_no_spaces(location):
             os.rename(os.path.join(location, file), os.path.join(location, new_filename))
 
 
-def build_specs(location):
-    global pages
-    rename_to_spaces(location)
+def build_specs(directory):
+    global pages, pdfFile
+    pages = 0
     pdfWriter = PyPDF2.PdfFileWriter()
-    blank= input("\n\n\n{}\n{}   Blank sheet needed after first odd number of pages?   {}\n\n{}\nIf there is a cover sheet, type 'no', if there is no cover, type 'yes':  ".format('*~'*40, '*~'*6, '*~'*5, '~*'*40))
-    bookmarks=OD()
+    bookmarks = OD()
+    os.chdir(location)
 
-    def write_to_file(sect):
+    def write_to_file():
         global pages
         for pageNum in range(pdfReader.numPages):
-            pages+=1
+            pages += 1
             pageObj = pdfReader.getPage(pageNum)
             pdfWriter.addPage(pageObj)
 
-
     for file in directory:
-        pdfFile = open(file, 'rb')
+        try:
+            pdfFile = open(file, 'rb')
+        except:
+            app.ErrorBox('Bad File', '{} seems to be stupid, open in Acrobat and resave as PDF'.format(file))
         pdfReader = PyPDF2.PdfFileReader(pdfFile, strict=False)
         bookmarks[file] = pages
 
-        write_to_file(file)
+        write_to_file()
 
         if pdfReader.numPages % 2 != 0:
-            if blank == 'yes':
-                pdfWriter.addBlankPage()
-                pages+=1
-            else:
-                blank = 'yes'
+            pdfWriter.addBlankPage()
+            pages += 1
 
     for books in bookmarks:
         pdfWriter.addBookmark(books, bookmarks[books])
@@ -70,3 +89,27 @@ def build_specs(location):
     pdfWriter.write(OutputFile)
     OutputFile.close()
     pdfFile.close()
+
+
+if __name__ == '__main__':
+
+    app = gui("SpecTool")
+    app.setBg("dark gray")
+    app.setFont(15, font="Exo 2")
+    app.setSticky('ew')
+    app.setTitle('SpecTool')
+
+    app.startLabelFrame('Task')
+    app.addRadioButton('task', 'Build Specs')
+    app.addRadioButton('task', 'Rename Files')
+    app.stopLabelFrame()
+
+    app.startLabelFrame('Renaming Options')
+    app.addRadioButton('options', 'Add Spaces')
+    app.addRadioButton('options', 'Remove Spaces')
+    app.stopLabelFrame()
+
+    app.addDirectoryEntry('location')
+    app.addButton('Start', execute)
+    app.addButton('Quit', execute)
+    app.go()
