@@ -29,15 +29,12 @@ def execute(btnName):
 def rename_to_spaces(directory):
     for file in directory:
         if ' ' not in file[:6] and file[0].isdigit():
+            # print(new_filename)
             a = file[:2]
             b = file[2:4]
-            if file[6] == '.':
-                c = file[4:]
-                names = [a, b, c]
-            else:
-                c = file[4:6]
-                d = file[7:]
-                names = [a, b, c, d]
+            c = file[4:6]
+            d = file[7:]
+            names = [a, b, c, d]
             new_filename = ' '.join(names)
             os.rename(os.path.join(location, file), os.path.join(location, new_filename))
 
@@ -69,10 +66,7 @@ def build_specs(directory):
             pdfWriter.addPage(pageObj)
 
     for file in directory:
-        try:
-            pdfFile = open(file, 'rb')
-        except:
-            app.ErrorBox('Bad File', '{} seems to be stupid, open in Acrobat and resave as PDF'.format(file))
+        pdfFile = open(file, 'rb')
         pdfReader = PyPDF2.PdfFileReader(pdfFile, strict=False)
         bookmarks[file] = pages
 
@@ -93,7 +87,8 @@ def build_specs(directory):
 
 if __name__ == '__main__':
 
-    app = gui("SpecTool")
+
+    app =  gui("SpecTool")
     app.setBg("dark gray")
     app.setFont(15, font="Exo 2")
     app.setSticky('ew')
