@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
     app =  gui("SpecTool")
     app.setBg("dark gray")
-    app.setFont(15, font="Exo 2")
+    app.setFont(15, font="Google Sans Medium")
     app.setSticky('ew')
     app.setTitle('SpecTool')
 
