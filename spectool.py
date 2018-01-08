@@ -10,20 +10,17 @@ def execute(btnName):
     options = app.getRadioButton('options')
     location = app.getEntry('location')
 
-    if btnName == 'Quit':
-        app.stop()
-    elif btnName == 'Start':
-        if location == '':
-            app.errorBox('Empty Location', 'Choose the directory with the files in it.')
-        else:
-            directory = os.listdir(location)
-            if task == 'Build Specs':
-                build_specs(directory)
-            elif task == 'Rename Files':
-                if options == 'Add Spaces':
-                    rename_to_spaces(directory)
-                elif options == 'Remove Spaces':
-                    rename_no_spaces(directory)
+    if location == '':
+        app.errorBox('Empty Location', 'Choose the directory with the files in it.')
+    else:
+        directory = os.listdir(location)
+        if task == 'Build Specs':
+            build_specs(directory)
+        elif task == 'Rename Files':
+            if options == 'Add Spaces':
+                rename_to_spaces(directory)
+            elif options == 'Remove Spaces':
+                rename_no_spaces(directory)
 
 
 def rename_to_spaces(directory):
@@ -106,5 +103,5 @@ if __name__ == '__main__':
 
     app.addDirectoryEntry('location')
     app.addButton('Start', execute)
-    app.addButton('Quit', execute)
+    app.addButton('Quit', lambda btnName: app.stop())
     app.go()
