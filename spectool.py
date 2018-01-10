@@ -63,9 +63,13 @@ def build_specs(directory):
             pdfWriter.addPage(pageObj)
 
     for file in directory:
-        pdfFile = open(file, 'rb')
-        pdfReader = PyPDF2.PdfFileReader(pdfFile, strict=False)
-        bookmarks[file] = pages
+        try:
+            pdfFile = open(file, 'rb')
+            pdfReader = PyPDF2.PdfFileReader(pdfFile, strict=False)
+            bookmarks[file] = pages
+        except Exception:
+            app.errorBox('Stupid File', '{} is stupid.  \nResave the PDF and try again'.format(file))
+            return
 
         write_to_file()
 
