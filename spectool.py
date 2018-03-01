@@ -21,6 +21,7 @@ def execute(btnName):
                 rename_to_spaces(directory)
             elif options == 'Remove Spaces':
                 rename_no_spaces(directory)
+        app.infoBox('Done', 'Done!')
 
 
 def rename_to_spaces(directory):
