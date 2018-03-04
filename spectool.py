@@ -15,10 +15,20 @@ def execute(btnName):
         directory = os.listdir(location)
         if opts == 'Build Specs':
             build_specs(directory)
+<<<<<<< HEAD
         elif opts == 'Add Spaces':
             rename_to_spaces(directory)
         elif options == 'Remove Spaces':
             rename_no_spaces(directory)
+=======
+        elif task == 'Rename Files':
+            if options == 'Add Spaces':
+                rename_to_spaces(directory)
+            elif options == 'Remove Spaces':
+                rename_no_spaces(directory)
+        app.infoBox('Done', 'Done!')
+
+>>>>>>> c54476d758c5e1ce9f8e7adc700e6b68031c6eca
 
 def rename_to_spaces(directory):
     for file in directory:
