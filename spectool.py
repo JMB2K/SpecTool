@@ -53,7 +53,7 @@ def build_specs(directory):
             pdfReader = PyPDF2.PdfFileReader(pdfFile, strict=False)
             bookmarks[file] = pages
         except Exception:
-            errors.append(file)            
+            errors.append(file)
 
         for pageNum in range(pdfReader.numPages):
             pages += 1
