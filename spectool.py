@@ -1,6 +1,5 @@
 import PyPDF2
 import os
-
 from appJar import gui
 from collections import OrderedDict as OD
 
@@ -46,6 +45,7 @@ def build_specs(directory):
     pdfWriter = PyPDF2.PdfFileWriter()
     bookmarks = OD()
     os.chdir(location)
+    errors = []
 
     for file in directory:
         try:
@@ -53,8 +53,8 @@ def build_specs(directory):
             pdfReader = PyPDF2.PdfFileReader(pdfFile, strict=False)
             bookmarks[file] = pages
         except Exception:
-            app.popUp('Stupid File', '{} is stupid.  \nResave the PDF and try again'.format(file), kind='error')
-            return
+            errors.append(file)
+            
 
         for pageNum in range(pdfReader.numPages):
             pages += 1
@@ -68,10 +68,14 @@ def build_specs(directory):
     for books in bookmarks:
         pdfWriter.addBookmark(books, bookmarks[books])
 
-    OutputFile = open('CombinedSpecs.pdf', 'wb')
-    pdfWriter.write(OutputFile)
-    OutputFile.close()
-    pdfFile.close()
+    if errors == []:
+        OutputFile = open('CombinedSpecs.pdf', 'wb')
+        pdfWriter.write(OutputFile)
+        OutputFile.close()
+        pdfFile.close()
+    else:
+        errors = '\n'.join([x[:8] for x in errors])
+        return app.popUp('Errors', 'These files are stupid:\n{}\nPlease resave as PDF and try again.'.format(errors))
 
 
 if __name__ == '__main__':
