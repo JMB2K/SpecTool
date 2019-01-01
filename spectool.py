@@ -77,7 +77,6 @@ def build_specs(directory):
         errors = '\n'.join([x[:8] for x in errors])
         return app.popUp('Errors', f'These files are stupid:\n{errors}\nPlease resave as PDF and try again.')
 
-
 if __name__ == '__main__':
 
     app =  gui("SpecTool")
