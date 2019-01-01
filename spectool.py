@@ -1,35 +1,34 @@
 import PyPDF2
 import os
 from appJar import gui
-from collections import OrderedDict as OD
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+#logging.disable(logging.CRITICAL)
+
 
 def execute(btnName):
     global location
     location = app.getEntry('location')
     opts = app.option('Options')
 
-    if location == '':
-        app.popUp('Empty Location', 'Choose the directory with the files in it.', kind='warning')
-    else:
-        directory = os.listdir(location)
-        if opts == 'Build Specs':
-            build_specs(directory)
-        elif opts == 'Add Spaces':
-            rename_to_spaces(directory)
-        elif opts == 'Remove Spaces':
-            rename_no_spaces(directory)
-        app.infoBox('Done', 'Done!')
+    if not location:
+        return app.popUp('Empty Location', 'Choose the directory with the files in it.', kind='warning')
+
+    directory = os.listdir(location)
+    if opts == 'Build Specs':
+        build_specs(directory)
+    elif opts == 'Add Spaces':
+        rename_to_spaces(directory)
+    elif opts == 'Remove Spaces':
+        rename_no_spaces(directory)
+    return app.infoBox('Done', 'Done!')
 
 def rename_to_spaces(directory):
     for file in directory:
         if ' ' not in file[:6] and file[0].isdigit():
-            a = file[:2]
-            b = file[2:4]
-            c = file[4:6]
-            d = file[7:]
-            names = [a, b, c, d]
-            new_filename = ' '.join(names)
-            os.rename(os.path.join(location, file), os.path.join(location, new_filename))
+            new_filename = f'{file[:2]} {file[2:4]} {file[4:6]}{file[6:]}'
+            os.rename(os.path.join(location, file), os.path.join(location,new_filename))
 
 def rename_no_spaces(directory):
     for file in directory:
@@ -40,20 +39,22 @@ def rename_no_spaces(directory):
             os.rename(os.path.join(location, file), os.path.join(location, new_filename))
 
 def build_specs(directory):
-    global pages, pdfFile
     pages = 0
     pdfWriter = PyPDF2.PdfFileWriter()
-    bookmarks = OD()
+    bookmarks = dict()
     os.chdir(location)
     errors = []
 
     for file in directory:
+        logging.debug(f'Next File: {file}')
         try:
             pdfFile = open(file, 'rb')
             pdfReader = PyPDF2.PdfFileReader(pdfFile, strict=False)
             bookmarks[file] = pages
-        except Exception:
+        except Exception as E:
+            logging.debug(E)
             errors.append(file)
+            continue
 
         for pageNum in range(pdfReader.numPages):
             pages += 1
@@ -67,14 +68,15 @@ def build_specs(directory):
     for books in bookmarks:
         pdfWriter.addBookmark(books, bookmarks[books])
 
-    if errors == []:
+    if not errors:
         OutputFile = open('CombinedSpecs.pdf', 'wb')
         pdfWriter.write(OutputFile)
         OutputFile.close()
         pdfFile.close()
     else:
         errors = '\n'.join([x[:8] for x in errors])
-        return app.popUp('Errors', 'These files are stupid:\n{}\nPlease resave as PDF and try again.'.format(errors))
+        return app.popUp('Errors', f'These files are stupid:\n{errors}\nPlease resave as PDF and try again.')
+    
 
 
 if __name__ == '__main__':
